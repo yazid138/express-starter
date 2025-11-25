@@ -9,15 +9,17 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { createUser, findUserByUsername } from "@/services/user.service";
 import { User } from "@prisma/client";
-import RegisterBody from "@/types/auth/registerBody";
-import LoginBody from "@/types/auth/loginBody";
 
+type LoginRequest = {
+  username: string;
+  password: string;
+};
 export const loginController = (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  validate<LoginBody>(
+  validate<LoginRequest>(
     {
       username: "string",
       password: "string",
@@ -58,8 +60,13 @@ export const meController = (req: Request, res: Response) => {
   sendResponse(res, { status: 200, message: "User info", data: req.user });
 };
 
+type RegisterRequest = {
+  name: string;
+  username: string;
+  password: string;
+};
 export const registerController = async (req: Request, res: Response) => {
-  validate<RegisterBody>(
+  validate<RegisterRequest>(
     {
       name: "string",
       username: "string",
@@ -67,7 +74,7 @@ export const registerController = async (req: Request, res: Response) => {
     },
     req.body,
   );
-  const { name, username, password } = req.body as RegisterBody;
+  const { name, username, password } = req.body as RegisterRequest;
   const existingUser = await findUserByUsername(username);
   if (existingUser) {
     throw new BadRequestException("Username already exists");
