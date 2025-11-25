@@ -1,6 +1,6 @@
 import sendResponse from "@/utils/responseHandler";
 import { Router, Request, Response } from "express";
-import authRouter from "./auth";
+import authRouter from "./auth.routes";
 
 const router = Router();
 

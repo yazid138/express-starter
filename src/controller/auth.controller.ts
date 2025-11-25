@@ -7,12 +7,16 @@ import UnauthorizedException from "@/exception/UnauthorizedException";
 import config from "@/config";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import prisma from "@/database/prisma";
+import { createUser, findUserByUsername } from "@/services/user.service";
 import { User } from "@prisma/client";
 import RegisterBody from "@/types/auth/registerBody";
 import LoginBody from "@/types/auth/loginBody";
 
-export const login = (req: Request, res: Response, next: NextFunction) => {
+export const loginController = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   validate<LoginBody>(
     {
       username: "string",
@@ -50,11 +54,11 @@ export const login = (req: Request, res: Response, next: NextFunction) => {
   )(req, res, next);
 };
 
-export const me = (req: Request, res: Response) => {
+export const meController = (req: Request, res: Response) => {
   sendResponse(res, { status: 200, message: "User info", data: req.user });
 };
 
-export const register = async (req: Request, res: Response) => {
+export const registerController = async (req: Request, res: Response) => {
   validate<RegisterBody>(
     {
       name: "string",
@@ -64,18 +68,16 @@ export const register = async (req: Request, res: Response) => {
     req.body,
   );
   const { name, username, password } = req.body as RegisterBody;
-  const existingUser = await prisma.user.findUnique({ where: { username } });
+  const existingUser = await findUserByUsername(username);
   if (existingUser) {
     throw new BadRequestException("Username already exists");
   }
   const hashedPassword = await bcrypt.hash(password, 10);
-  await prisma.user.create({
-    data: { name, username, password: hashedPassword },
-  });
+  await createUser({ name, username, password: hashedPassword });
   sendResponse(res, { status: 200, message: "Register successful" });
 };
 
-export const logout = (req: Request, res: Response) => {
+export const logoutController = (req: Request, res: Response) => {
   req.logout((errLogout) => {
     if (errLogout) {
       throw new BadRequestException(
