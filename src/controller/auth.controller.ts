@@ -14,11 +14,7 @@ type LoginRequest = {
   username: string;
   password: string;
 };
-export const loginController = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const login = (req: Request, res: Response, next: NextFunction) => {
   validate<LoginRequest>(
     {
       username: "string",
@@ -65,7 +61,7 @@ type RegisterRequest = {
   username: string;
   password: string;
 };
-export const registerController = async (req: Request, res: Response) => {
+const register = async (req: Request, res: Response) => {
   validate<RegisterRequest>(
     {
       name: "string",
@@ -84,7 +80,7 @@ export const registerController = async (req: Request, res: Response) => {
   sendResponse(res, { status: 200, message: "Register successful" });
 };
 
-export const logoutController = (req: Request, res: Response) => {
+const logout = (req: Request, res: Response) => {
   req.logout((errLogout) => {
     if (errLogout) {
       throw new BadRequestException(
@@ -94,4 +90,11 @@ export const logoutController = (req: Request, res: Response) => {
     }
     sendResponse(res, { status: 200, message: "Logout successful" });
   });
+};
+
+export default {
+  login,
+  meController,
+  register,
+  logout,
 };
