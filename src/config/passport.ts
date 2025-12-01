@@ -2,7 +2,7 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 import config from "@/config";
-import { findUserById, findUserByUsername } from "@/services/user.service";
+import userService from "@/services/user.service";
 import bcrypt from "bcrypt";
 import { User } from "@prisma/client";
 import logger from "@/utils/logger";
@@ -16,7 +16,7 @@ passport.use(
       done: (error: boolean, user?: User, info?: { message: string }) => void,
     ) => {
       try {
-        const user = await findUserByUsername(username);
+        const user = await userService.findUserByUsername(username);
         if (!user) {
           return done(true, undefined, { message: "Username tidak ditemukan" });
         }
@@ -47,7 +47,7 @@ passport.use(
       done: (err: boolean, user?: Omit<User, "password" | "updatedAt">) => void,
     ) => {
       try {
-        const user = await findUserById(payload.id);
+        const user = await userService.findUserById(payload.id);
         if (!user) {
           return done(true);
         }

@@ -7,7 +7,7 @@ import UnauthorizedException from "@/exception/UnauthorizedException";
 import config from "@/config";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { createUser, findUserByUsername } from "@/services/user.service";
+import userService from "@/services/user.service";
 import { User } from "@prisma/client";
 
 type LoginRequest = {
@@ -52,7 +52,7 @@ const login = (req: Request, res: Response, next: NextFunction) => {
   )(req, res, next);
 };
 
-export const meController = (req: Request, res: Response) => {
+const meController = (req: Request, res: Response) => {
   sendResponse(res, { status: 200, message: "User info", data: req.user });
 };
 
@@ -71,12 +71,12 @@ const register = async (req: Request, res: Response) => {
     req.body,
   );
   const { name, username, password } = req.body as RegisterRequest;
-  const existingUser = await findUserByUsername(username);
+  const existingUser = await userService.findUserByUsername(username);
   if (existingUser) {
     throw new BadRequestException("Username already exists");
   }
   const hashedPassword = await bcrypt.hash(password, 10);
-  await createUser({ name, username, password: hashedPassword });
+  await userService.createUser({ name, username, password: hashedPassword });
   sendResponse(res, { status: 200, message: "Register successful" });
 };
 
